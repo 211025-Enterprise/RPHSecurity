@@ -1,0 +1,4 @@
+com\revature\rphSecurity\annotations\EndPointSecurity.class
+com\revature\rphSecurity\RphSecurityApplication.class
+com\revature\rphSecurity\TestController.class
+com\revature\rphSecurity\aspects\RPHSecurityAspect.class
