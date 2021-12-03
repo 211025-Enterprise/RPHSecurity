@@ -28,11 +28,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 
 @Component
 @Aspect
@@ -48,7 +48,15 @@ public class RPHSecurityAspect {
 	@Pointcut("@annotation(com.revature.rphSecurity.annotations.EndPointSecurity)")
 	public void intercept(){}
 
+	@Pointcut("execution(* javax.servlet.http.HttpServlet+.*(..))")
+	public void interceptMVC(){}
 
+	private HttpServletRequest request;
+
+	@Before("interceptMVC()")
+	private void beforeInterceptMVC(JoinPoint joinPoint){
+		request = (HttpServletRequest) joinPoint.getArgs()[0];
+	}
 
 	@Around("intercept()")
 	public Object beforeIntercept(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
@@ -57,7 +65,8 @@ public class RPHSecurityAspect {
 		try{
 			Algorithm algorithm = Algorithm.HMAC256(secret);
 			JWTVerifier verifier = JWT.require(algorithm).withIssuer(Issuer).build();
-			DecodedJWT jwt = verifier.verify(proceedingJoinPoint.getArgs()[0].toString().split(" ")[1]);
+
+			DecodedJWT jwt = verifier.verify(request.getHeader("Authorization").split(" ")[1]);
 			Base64.Decoder decoder = Base64.getDecoder();
 			String s = new String(decoder.decode(jwt.getPayload()));
 			map = new ObjectMapper().readValue(s, HashMap.class);

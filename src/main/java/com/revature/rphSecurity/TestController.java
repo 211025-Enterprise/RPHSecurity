@@ -18,9 +18,10 @@ public class TestController {
 
 	@EndPointSecurity(allowedUserTypes = "Operator")
 	@GetMapping
-	public String get(@RequestHeader String Authorization){
+	public String get(){
 		return "Hello";
 	}
+
 	@GetMapping("/login")
 	public String givemekey(){
 		Map<String,String> map = new HashMap<>();
